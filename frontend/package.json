@@ -1,0 +1,78 @@
+{
+  "name": "landexplorer-frontend",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "LandExplorer — agricultural Ground Control Point surveying SPA.",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=20.10.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "fmt": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
+    "fmt:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "gen:api": "openapi-typescript http://localhost:8000/openapi.json -o src/api/generated/schema.ts"
+  },
+  "dependencies": {
+    "@emotion/react": "11.13.3",
+    "@emotion/styled": "11.13.0",
+    "@mui/icons-material": "5.16.7",
+    "@mui/material": "5.16.7",
+    "@tanstack/react-query": "5.59.16",
+    "konva": "9.3.16",
+    "leaflet": "1.9.4",
+    "maplibre-gl": "^5.24.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-konva": "18.2.10",
+    "react-leaflet": "4.2.1",
+    "react-router-dom": "6.30.6",
+    "stylis": "4.3.4",
+    "stylis-plugin-rtl": "2.1.1",
+    "zustand": "4.5.5"
+  },
+  "devDependencies": {
+    "@tanstack/react-query-devtools": "5.59.16",
+    "@testing-library/jest-dom": "6.6.2",
+    "@testing-library/react": "16.0.1",
+    "@testing-library/user-event": "14.5.2",
+    "@types/leaflet": "1.9.12",
+    "@types/node": "20.16.11",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.1",
+    "@types/stylis": "^4.2.7",
+    "@typescript-eslint/eslint-plugin": "7.18.0",
+    "@typescript-eslint/parser": "7.18.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "@vitest/coverage-v8": "2.1.4",
+    "eslint": "8.57.1",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-react": "7.37.1",
+    "eslint-plugin-react-hooks": "4.6.2",
+    "eslint-plugin-react-refresh": "0.4.14",
+    "fast-check": "3.23.1",
+    "jsdom": "25.0.1",
+    "msw": "2.6.0",
+    "openapi-typescript": "7.4.2",
+    "prettier": "3.3.3",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vitest": "2.1.4"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}

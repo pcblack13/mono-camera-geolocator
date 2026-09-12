@@ -1,0 +1,4 @@
+# LandExplorer is an authenticated internal surveying tool, not a public site.
+# Survey coordinates are client deliverables and must never be indexed.
+User-agent: *
+Disallow: /

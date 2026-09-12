@@ -1,0 +1,56 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#  LandExplorer — editor baseline.  https://editorconfig.org
+#  Values agree with pyproject.toml (ruff/black line-length = 100) and with
+#  .prettierrc. Where they disagree, the formatter wins and this file is a bug.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+[*.py]
+indent_size = 4
+max_line_length = 100
+
+[*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,css,scss,html,yml,yaml}]
+indent_size = 2
+
+[*.{md,markdown}]
+indent_size = 2
+# ★ Trailing whitespace is SIGNIFICANT in markdown: two trailing spaces is a
+#   hard line break. Trimming it silently reflows the architecture documents.
+trim_trailing_whitespace = false
+
+[Makefile]
+# ★ NOT NEGOTIABLE. make requires a literal TAB to open a recipe line; a space
+#   produces "missing separator. Stop." — and an editor that "helpfully" expands
+#   tabs breaks every target in the file.
+indent_style = tab
+indent_size = 4
+
+[*.{sh,bash}]
+indent_size = 4
+
+[*.sql]
+indent_size = 4
+
+[{Dockerfile,*.Dockerfile,.dockerignore}]
+indent_size = 4
+
+[*.{ini,cfg,toml}]
+indent_size = 4
+
+# import-linter's config is INI-shaped; the contract bodies are indented lists.
+[.importlinter]
+indent_size = 4
+
+[*.env.example]
+insert_final_newline = true
+trim_trailing_whitespace = true

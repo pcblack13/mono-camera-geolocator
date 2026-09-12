@@ -1,0 +1,18 @@
+# GEO-DRIFT-UPDATE B1 — the field unit's entire dependency list.
+#
+# ★ TWO PACKAGES. The drift monitor is template matching plus one 3x3 SVD; it
+#   needs no torch, no ultralytics, no GPU, and no geospatial stack. If a third
+#   line ever appears here, something has been imported that does not belong on
+#   an embedded box.
+#
+# ★ HEADLESS ON PURPOSE. A field unit has no display, and the plain
+#   `opencv-python` wheel drags in GUI libraries that will not install on a
+#   minimal image. The CONTRIB build is NOT needed here: that one exists for the
+#   CSRT tracker used by detection, which this daemon never touches.
+#
+# ★ ARM / Raspberry Pi: prefer the OS packages, which are prebuilt --
+#       sudo apt install python3-numpy python3-opencv
+#   and skip the venv entirely, or create it with --system-site-packages so it
+#   can see them. Building numpy or OpenCV from source on a Pi takes hours.
+numpy>=1.24
+opencv-python-headless>=4.8

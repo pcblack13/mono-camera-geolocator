@@ -1,0 +1,175 @@
+# LandExplorer — workspace root configuration.
+#
+# ★ THIS IS NOT A PACKAGE (CONTRACT.md §2.1). There is deliberately no [project]
+#   and no [build-system] table here. The three real packages are:
+#
+#       ai_engine/pyproject.toml   name="landexplorer-ai-engine"
+#       gis/pyproject.toml         name="landexplorer-gis"
+#       backend/pyproject.toml     name="landexplorer-backend"
+#
+#   This file exists so that ruff / black / mypy / pytest have ONE configuration
+#   for the whole repo instead of three that drift. Running `pip install .` at the
+#   repo root is not a supported operation and will fail — that is intentional.
+#
+# See scripts/bootstrap_dev.sh for the install procedure on this machine.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ruff — lint (CONTRACT.md §13.4 rule 4)
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [
+    ".venv",
+    "data",
+    "frontend",
+    "backend/alembic/versions",
+    "frontend/src/api/generated",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "N",      # pep8-naming
+    "ANN",    # flake8-annotations   — §13.4 rule 6: public functions carry type hints
+    "D",      # pydocstyle           — §13.4 rule 6: and docstrings
+    "RUF",
+    "TID",    # flake8-tidy-imports
+    "PTH",
+    "SIM",
+    "ARG",
+    "TCH",
+]
+ignore = [
+    "ANN401",  # `Any` is occasionally the honest annotation (**kwargs passthrough)
+    "D203",    # incompatible with D211
+    "D213",    # incompatible with D212
+    "E501",    # line length is black's job, not ruff's
+    "B008",    # FastAPI's Depends() in a default IS the framework's idiom
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests do not need docstrings on every assertion helper.
+"**/tests/**" = ["D100", "D101", "D102", "D103", "D104", "ANN201", "ANN001"]
+"**/test_*.py" = ["D100", "D101", "D102", "D103", "D104", "ANN201", "ANN001"]
+"scripts/*.py" = ["D100"]
+# Alembic's generated skeletons have their own shape.
+"backend/alembic/env.py" = ["D100", "ANN"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ai_engine", "gis", "app"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# black — format
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+extend-exclude = '''
+(
+    /\.venv
+  | /data
+  | /frontend
+  | backend/alembic/versions
+)
+'''
+
+# ─────────────────────────────────────────────────────────────────────────────
+# mypy — types (CONTRACT.md §13.4 rule 3)
+#   --strict on ai_engine and gis; ordinary strictness on backend.
+#   The strictness split is expressed HERE rather than in three CI invocations,
+#   so `mypy ai_engine gis backend` reproduces CI exactly.
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.12"
+mypy_path = ["ai_engine/src", "gis/src", "backend"]
+namespace_packages = true
+explicit_package_bases = true
+plugins = []
+exclude = [
+    '^\.venv/',
+    '^data/',
+    '^frontend/',
+    '^backend/alembic/versions/',
+]
+# Baseline for `backend` (see the per-module strict block below for ai_engine/gis).
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_optional = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[[tool.mypy.overrides]]
+# ★ --strict, expressed as config so it applies to these two trees only.
+module = ["ai_engine.*", "gis.*"]
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+strict_equality = true
+extra_checks = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+# Optional / absent-on-this-machine dependencies (§0.1). They are bound at CALL
+# time (§11.3) and are legitimately missing here — a missing stub is not a defect.
+module = [
+    "osgeo.*",
+    "cv2.*",
+    "rasterio.*",
+    "geopandas.*",
+    "fiona.*",
+    "shapely.*",
+    "pyproj.*",
+    "ezdxf.*",
+    "reportlab.*",
+    "kornia.*",
+    "celery.*",
+    "geoalchemy2.*",
+    "prometheus_client.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["*.tests.*", "tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# pytest
+#   ★ NOTE the deliberate absence of a repo-wide `testpaths`. §10.6 is explicit
+#     that `cd ai_engine && pytest` and `cd gis && pytest` are the supported
+#     invocations, because collecting backend/ imports fastapi — which is NOT
+#     installed on this machine (§0.1) and would fail collection before a single
+#     algorithm ran. `make test` runs the suites separately for the same reason.
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra --strict-markers --strict-config"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "db: requires a live PostgreSQL + PostGIS (run separately — §13.4 rule 1)",
+    "slow: takes more than a second",
+    "deferred: asserts the SCOPE.md deferred seam (must raise NotImplementedDeferred)",
+]
+filterwarnings = [
+    "error::DeprecationWarning:ai_engine.*",
+    "error::DeprecationWarning:gis.*",
+]

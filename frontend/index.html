@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Mono Camera Geolocator — mark landmarks in a field photograph, locate them on satellite imagery, and export survey-grade ground control points."
+    />
+    <!--
+      ★ No CDN. Anywhere. The app must work with the NIC unplugged (SCOPE.md §3,
+        docs/guides/offline-mode.md): a surveyor is in a field, not on a backbone.
+        Fonts are self-hosted from /fonts (see src/theme/typography.ts).
+    -->
+    <link rel="preconnect" href="/" />
+    <title>Mono Camera Geolocator</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      Mono Camera Geolocator is an interactive surveying tool and requires JavaScript to be enabled.
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

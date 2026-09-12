@@ -1,0 +1,24 @@
+{
+  "calibration_id": "default-v1",
+  "calibrated": false,
+  "method": "identity",
+  "params": {},
+  "fitted_on": null,
+  "n_samples": 0,
+  "created_at": null,
+  "notes": [
+    "SHIPS AS THE IDENTITY, AND calibrated IS false. This file is a placeholder with the",
+    "right shape and no fitted content, because no calibration data exists yet.",
+    "A fabricated curve would be a lie with a probability attached to it: the surveyor",
+    "reading '87% confident' has no way to know it means '87 arbitrary units'. So the raw",
+    "score passes through unchanged, ScoreResult.calibrated is false, it rides on the wire,",
+    "and the UI renders confidence as an ordinal score rather than a probability.",
+    "Calibration is earned from the ground-truth dataset that manual GCP surveying",
+    "produces -- see docs/architecture/SCOPE.md section 2, which records that generating",
+    "exactly that dataset is one reason manual mode is the correct thing to build first.",
+    "To fit this properly: collect (feature_vector, was_correct) pairs from real jobs,",
+    "fit Platt or isotonic offline, set method/params/fitted_on/n_samples, and set",
+    "calibrated to true in the SAME commit. ScoreResult.feature_vector is persisted on",
+    "every result precisely so this can be done without re-running any CV."
+  ]
+}

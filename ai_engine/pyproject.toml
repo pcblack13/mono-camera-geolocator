@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "landexplorer-ai-engine"
+version = "2.0.0"
+description = "LandExplorer computer-vision engine: pixels in, pixels out. Knows nothing of maps, databases or HTTP."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+authors = [{ name = "LandExplorer" }]
+keywords = ["computer-vision", "feature-matching", "homography", "photogrammetry"]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Typing :: Typed",
+]
+
+# ★ BASE DEPS ARE THE CLASSICAL PATH AND NOTHING ELSE (L1).
+#   Every one of these is present as a system-site package on the verified dev box, so
+#   `pip install -e ./ai_engine --no-deps` yields a working import today. Deep backends
+#   are the [deep] extra and are never required for the product to run end to end.
+dependencies = [
+    "numpy>=2.0",
+    "opencv-python>=4.9",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+# Optional accelerants. A missing weight or a missing torch is a WARNING and a fallback (L11),
+# never a traceback — see ai_engine/models/policy.py.
+deep = [
+    "torch>=2.1",
+    "torchvision>=0.16",
+]
+# ★ The test RUNNER is not a runtime dependency. "Zero installs" covers runtime only:
+#   `pip install -e ./ai_engine[dev] --no-deps` before the suite runs.
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "hypothesis>=6.100",
+    "mypy>=1.10",
+    "ruff>=0.5",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ai_engine*"]
+
+[tool.setuptools.package-data]
+ai_engine = ["py.typed", "scoring/calibration/*.json"]

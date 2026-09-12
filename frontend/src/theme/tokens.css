@@ -1,0 +1,206 @@
+/**
+ * `theme/tokens.css` — the instrument token set. Phase 1 of the redesign.
+ *
+ * ★ ONE SOURCE, TWO THEMES. Every colour, radius, duration and elevation the app
+ *   may use is declared here once, under `:root` for dark and `[data-theme='light']`
+ *   for daylight field work. A component that writes `#1E2731` instead of
+ *   `var(--hairline)` has forked the design system; the migration's "zero
+ *   hard-coded colours" gate exists to catch exactly that.
+ *
+ * ★ COLOUR MEANS ONE THING AT A TIME. The brief asked for green = committed,
+ *   amber = stale, red = error — but this app already spends those four hues on
+ *   the ACCURACY BANDS, and both live on the same GCP marker. A committed point
+ *   with an unreliable coordinate would then be green and red at once. So:
+ *
+ *      colour  → accuracy      (the claim the product is judged on)
+ *      shape   → lifecycle     (draft / committed / stale / refused)
+ *
+ *   Lifecycle is carried by the pill, the border style and the marker glyph — all
+ *   of which read without hover and survive colour-blindness, which a second hue
+ *   scale would not.
+ *
+ * ★ NOTHING HERE IS DECORATIVE. The chrome is desaturated so the imagery and the
+ *   accuracy colours are the only saturated things on screen. That rule predates
+ *   this redesign and outranks it.
+ */
+
+:root,
+:root[data-theme='dark'] {
+  /* ── surfaces: the frame around the imagery ─────────────────────────────── */
+  --bg-base: #0b0f14; /* the app's floor */
+  --bg-elevated: #121821; /* panels, cards, docks */
+  --bg-overlay: #161d27; /* popovers, menus, dialogs */
+  --bg-canvas: #06090d; /* the void a photo or map sits in — darker than base */
+  --bg-inset: #090d12; /* wells: code blocks, readouts, table headers */
+  --hairline: #1e2731; /* 1px separation — never a shadow */
+  --hairline-strong: #2b3644; /* hairline that must survive over imagery */
+
+  /* translucent chrome, so the imagery stays the hero */
+  --scrim-panel: rgb(11 15 20 / 82%);
+  --scrim-hud: rgb(6 9 13 / 72%);
+
+  /* ── text ───────────────────────────────────────────────────────────────── */
+  --text-primary: #e6edf5;
+  --text-secondary: #93a1b3;
+  --text-tertiary: #64748b; /* captions, units, disabled labels */
+  --text-inverse: #0b0f14;
+
+  /* ── the single interactive accent: instrument cyan ──────────────────────── */
+  --accent: #35c8d8;
+  --accent-hover: #55d8e6;
+  --accent-press: #23a9b8;
+  --accent-quiet: rgb(53 200 216 / 14%); /* selected rows, active tool wells */
+  --accent-contrast: #04141a;
+
+  /* ── accuracy: colour's ONLY semantic job ───────────────────────────────── */
+  --acc-high: #4ade80;
+  --acc-moderate: #fbbf24;
+  --acc-low: #fb923c;
+  --acc-unreliable: #f87171;
+  --acc-none: #9aa3b0; /* measured nothing — never green, never guessed */
+
+  /* ── status: for messages and jobs, NOT for marker identity ──────────────── */
+  --status-ok: #4ade80;
+  --status-warn: #fbbf24;
+  --status-error: #f87171;
+  --status-busy: #35c8d8;
+  --status-draft: #a78bfa; /* violet: unsaved, uncommitted, in-flight edit */
+
+  /* ── focus: a soft inner glow, not a drop shadow ─────────────────────────── */
+  --focus-ring: 0 0 0 2px rgb(53 200 216 / 70%), inset 0 0 12px rgb(53 200 216 / 12%);
+  --focus-ring-error: 0 0 0 2px rgb(248 113 113 / 70%);
+
+  /* ── elevation: layered translucency, hairlines instead of shadow ────────── */
+  --elev-panel: none;
+  --elev-dock: 0 -1px 0 0 var(--hairline);
+  --elev-popover: 0 8px 24px rgb(0 0 0 / 45%), 0 0 0 1px var(--hairline);
+  --elev-dialog: 0 24px 64px rgb(0 0 0 / 60%), 0 0 0 1px var(--hairline);
+}
+
+:root[data-theme='light'] {
+  /* ★ A TRUE light theme, not an inverted dark one: field work in daylight needs
+     high luminance and the SAME semantic meanings, retuned to hold 4.5:1 on white. */
+  --bg-base: #f4f6f8;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #ffffff;
+  --bg-canvas: #e6e9ed;
+  --bg-inset: #eef1f4;
+  --hairline: #dfe4ea;
+  --hairline-strong: #c3ccd6;
+
+  --scrim-panel: rgb(255 255 255 / 88%);
+  --scrim-hud: rgb(244 246 248 / 82%);
+
+  --text-primary: #101720;
+  --text-secondary: #4a5666;
+  --text-tertiary: #6b7787;
+  --text-inverse: #ffffff;
+
+  --accent: #0e7c8c;
+  --accent-hover: #0b6674;
+  --accent-press: #08525d;
+  --accent-quiet: rgb(14 124 140 / 12%);
+  --accent-contrast: #ffffff;
+
+  --acc-high: #1b7f4b;
+  --acc-moderate: #b45309;
+  --acc-low: #c2410c;
+  --acc-unreliable: #b91c1c;
+  --acc-none: #5f6672;
+
+  --status-ok: #1b7f4b;
+  --status-warn: #b45309;
+  --status-error: #b91c1c;
+  --status-busy: #0e7c8c;
+  --status-draft: #6d28d9;
+
+  --focus-ring: 0 0 0 2px rgb(14 124 140 / 65%), inset 0 0 12px rgb(14 124 140 / 10%);
+  --focus-ring-error: 0 0 0 2px rgb(185 28 28 / 65%);
+
+  --elev-panel: none;
+  --elev-dock: 0 -1px 0 0 var(--hairline);
+  --elev-popover: 0 8px 24px rgb(16 23 32 / 12%), 0 0 0 1px var(--hairline);
+  --elev-dialog: 0 24px 64px rgb(16 23 32 / 18%), 0 0 0 1px var(--hairline);
+}
+
+/* ── theme-independent: geometry, type, motion ───────────────────────────── */
+:root {
+  /* type — one geometric sans, one tabular mono. Both self-hosted, no CDN. */
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --fs-11: 0.6875rem;
+  --fs-12: 0.75rem;
+  --fs-13: 0.8125rem;
+  --fs-15: 0.9375rem;
+  --fs-18: 1.125rem;
+  --fs-24: 1.5rem;
+
+  /* ★ EVERY NUMERIC READOUT USES THESE. Tabular figures keep a coordinate from
+     jittering as it counts — a readout that reflows is a readout you cannot read. */
+  --num-feature: tabular-nums;
+  --num-variant: 'tnum' 1, 'zero' 1;
+
+  /* 4px grid */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+
+  /* control heights — 28 compact, 32 default; 44 is the field/touch minimum */
+  --control-sm: 28px;
+  --control-md: 32px;
+  --control-touch: 44px;
+
+  /* motion: only ever to communicate */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decel: cubic-bezier(0, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-normal: 180ms;
+  --dur-slow: 320ms;
+  --dur-fly: 500ms;
+}
+
+/* ★ Field machines are not all fast, and vestibular disorders are not rare.
+   Both the OS preference and the app's own switch collapse motion to nothing. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-normal: 0ms;
+    --dur-slow: 0ms;
+    --dur-fly: 0ms;
+  }
+}
+
+:root[data-reduce-motion='true'] {
+  --dur-fast: 0ms;
+  --dur-normal: 0ms;
+  --dur-slow: 0ms;
+  --dur-fly: 0ms;
+}
+
+/* ── the numeric readout primitive, available to plain CSS and MUI alike ──── */
+.le-num {
+  font-family: var(--font-mono);
+  font-feature-settings: var(--num-variant);
+  font-variant-numeric: var(--num-feature);
+  letter-spacing: 0;
+}
+
+/* ── RTL guard rails (2026-08-31) ──────────────────────────────────────────
+   The Arabic UI mirrors the document, but a map pane computes left-origin
+   geometry. The LtrIsland component is the real fence; this rule is the belt
+   to that brace, so a map dropped outside an island still keeps its feet. */
+.leaflet-container,
+.maplibregl-map {
+  direction: ltr;
+}

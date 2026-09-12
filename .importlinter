@@ -1,0 +1,209 @@
+# LandExplorer — import boundary contracts. CONTRACT.md §10.4.
+#
+# ★ THIS FILE IS THE CI GATE FOR L3 AND L4. A violation is a build failure, not a
+#   code-review opinion (§10). Run it with:  scripts/verify_boundaries.sh
+#
+# ★ WHY `allow_indirect_imports = true` IS ON EVERY `forbidden` CONTRACT — read
+#   §10.4's note before "fixing" it. These are DIRECT-import rules expressed with a
+#   transitive-import tool. import-linter's `forbidden` contract flags indirect
+#   chains by default, and §10.2 EXPLICITLY PERMITS app.api -> app.services ->
+#   app.db. Without this flag, `api-not-db` fails on a chain the design requires,
+#   and since §13.4 makes verify_boundaries.sh the definition of done, no module
+#   could ever be done. The transitive property is carried by the `layers`
+#   contract, which is the right tool for it.
+#
+#   The stated cost: allow_indirect_imports makes `cv2` in api-not-db's forbidden
+#   list TOOTHLESS. The L5 guarantee is therefore kept where it actually bites —
+#   in the §10.5 grep gates, which verify_boundaries.sh runs alongside this file.
+#
+# ★ `app` resolves only with backend/ on sys.path. verify_boundaries.sh sets
+#   PYTHONPATH accordingly; do not run `lint-imports` bare from the repo root.
+
+[importlinter]
+root_packages =
+    ai_engine
+    gis
+    app
+include_external_packages = True
+
+[importlinter:contract:layers]
+name = Package layering
+type = layers
+layers =
+    app
+    gis
+    ai_engine
+
+[importlinter:contract:ai-engine-purity]
+name = ai_engine imports no web/db/geo stack
+type = forbidden
+source_modules =
+    ai_engine
+forbidden_modules =
+    fastapi
+    sqlalchemy
+    celery
+    pydantic
+    redis
+    httpx
+    pyproj
+    rasterio
+    geopandas
+    shapely
+    osgeo
+    gis
+    app
+allow_indirect_imports = true
+
+[importlinter:contract:gis-purity]
+name = gis imports no web/db stack and no CV algorithms
+type = forbidden
+source_modules =
+    gis
+forbidden_modules =
+    fastapi
+    sqlalchemy
+    celery
+    pydantic
+    app
+    ai_engine.extractors
+    ai_engine.matchers
+    ai_engine.geometry
+    ai_engine.scoring
+    ai_engine.semantics
+    ai_engine.landmarks
+    ai_engine.pipeline
+    ai_engine.models
+    ai_engine.runtime
+    ai_engine.heatmap
+allow_indirect_imports = true
+
+# ★ The positive statement of §10.3: gis may see ai_engine.types and
+#   ai_engine.errors, and NOTHING else. gis-purity above lists subpackages and
+#   would silently miss a newly added one; this contract fails closed.
+#   verify_boundaries.sh additionally ASSERTS the allowed chain still EXISTS
+#   (gis.candidates -> ai_engine.types), so nobody "fixes" the seam by deleting it.
+[importlinter:contract:gis-ai-types-only]
+name = gis may import only ai_engine.types and ai_engine.errors
+type = forbidden
+source_modules =
+    gis
+forbidden_modules =
+    ai_engine.config
+    ai_engine.version
+    ai_engine.logging
+    ai_engine.models
+    ai_engine.extractors
+    ai_engine.matchers
+    ai_engine.geometry
+    ai_engine.semantics
+    ai_engine.landmarks
+    ai_engine.scoring
+    ai_engine.heatmap
+    ai_engine.pipeline
+    ai_engine.runtime
+    ai_engine.windows
+allow_indirect_imports = true
+
+[importlinter:contract:gis-tiles-pure]
+name = gis.tiles is pure math
+type = forbidden
+source_modules =
+    gis.tiles
+forbidden_modules =
+    pyproj
+    osgeo
+    rasterio
+    httpx
+    redis
+    PIL
+    gis.imagery
+    gis.crs
+allow_indirect_imports = true
+
+# ★ pyproj AND osgeo live in exactly one module. §10.2 grants gis.crs BOTH, and
+#   §11.3 REQUIRES the osr fallback (pyproj is absent on this machine, osgeo is
+#   present — osr is the ONLY working path for anything that is not 4326<->3857).
+#   gis.rasterio_shim additionally may bind osgeo.gdal at call time.
+[importlinter:contract:crs-single-entry]
+name = pyproj and osgeo are imported in exactly one module
+type = forbidden
+source_modules =
+    gis.tiles
+    gis.geometry
+    gis.accuracy
+    gis.pose
+    gis.heatmap
+    gis.exif
+    gis.imagery
+    gis.candidates
+    gis.exports
+    gis.elevation
+    gis.dem
+forbidden_modules =
+    pyproj
+    osgeo
+allow_indirect_imports = true
+
+# ★ L8. Permitted only in ai_engine.models.torch_guard.
+#   ai_engine.pipeline -> ai_engine.models -> torch_guard -> torch is a chain the
+#   design REQUIRES, which is why this is a direct-import rule (see the header).
+[importlinter:contract:torch-single-entry]
+name = torch is imported in exactly one module
+type = forbidden
+source_modules =
+    ai_engine.extractors
+    ai_engine.matchers
+    ai_engine.semantics
+    ai_engine.geometry
+    ai_engine.scoring
+    ai_engine.landmarks
+    ai_engine.pipeline
+    ai_engine.types
+forbidden_modules =
+    torch
+    torchvision
+    kornia
+allow_indirect_imports = true
+
+# ★ source_modules is app.api.V1 — THE ROUTERS. app.api.deps is deliberately
+#   exempt; §6.4 states the reasoning at length. Routers still may not reach the DB.
+[importlinter:contract:api-not-db]
+name = Routers do not touch the DB or the domain packages directly
+type = forbidden
+source_modules =
+    app.api.v1
+forbidden_modules =
+    app.db
+    app.models
+    app.tasks
+    ai_engine
+    gis
+    cv2
+allow_indirect_imports = true
+
+[importlinter:contract:schemas-not-orm]
+name = schemas never import the ORM
+type = forbidden
+source_modules =
+    app.schemas
+forbidden_modules =
+    sqlalchemy
+    geoalchemy2
+    app.models
+    ai_engine
+    gis
+allow_indirect_imports = true
+
+# ★ celery REMAINS forbidden — and is now ACHIEVABLE, because services enqueue
+#   through core.queue.JobQueue (a Protocol) rather than .delay(). §10.2's ruling.
+[importlinter:contract:services-no-framework]
+name = services are framework-free
+type = forbidden
+source_modules =
+    app.services
+forbidden_modules =
+    fastapi
+    starlette
+    celery
+allow_indirect_imports = true

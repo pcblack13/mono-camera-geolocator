@@ -1,0 +1,82 @@
+# LandExplorer — backend runtime dependencies (CONTRACT.md §9.14).
+#
+# Pinned exactly. This file — not the transitive graph of the path deps — is the
+# contract for what the image contains (§13.4 rule 7). An unpinned transitive
+# numpy is how a NumPy-2 ABI break reaches production on a Tuesday.
+#
+# The two local path packages (landexplorer-ai-engine, landexplorer-gis) are NOT
+# listed here: they are installed from the working tree with
+#   pip install -e ./ai_engine --no-deps && pip install -e ./gis --no-deps
+# (scripts/bootstrap_dev.sh, infra/docker/backend.Dockerfile). See pyproject.toml.
+
+# ── web / infra ────────────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+pydantic-settings==2.7.1
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.0
+psycopg[binary]==3.2.3
+geoalchemy2==0.15.2
+celery[redis]==5.4.0
+redis==5.2.1
+python-multipart==0.0.20
+pillow==12.1.1
+httpx==0.28.1
+orjson==3.10.12
+structlog==24.4.0
+prometheus-client==0.21.1
+
+# ── CV (§9.14 "Pinned (CV)") ───────────────────────────────────────────────
+# They arrive transitively via the ai_engine path dep; pinned here anyway,
+# and matched to the versions verified on the dev box (§0.1) so the container
+# and the dev machine cannot disagree about the NumPy ABI.
+# `headless` deliberately: the worker image has no X11 and opencv-python would
+# drag GUI libs into it. `contrib` deliberately too (2026-08): the CSRT tracker
+# in live detection lives in contrib — still ONE cv2 wheel, still no GUI. The
+# xfeatures2d ban survives the swap (verify_boundaries.sh §0.1).
+numpy==2.4.3
+imageio-ffmpeg>=0.6  # static ffmpeg: H.264 preview transcode (app/tasks/transcoding.py)
+opencv-contrib-python-headless==4.13.0.92
+scipy==1.17.1
+# Serial/UART data feeds on EVERY platform (app/services/live_data_service.py):
+# pyserial opens COM ports on Windows and /dev/tty* on Linux alike; without it the
+# stdlib termios path still serves POSIX and Windows feeds are refused with the
+# pip line named. Pure Python, no native build.
+pyserial==3.5
+# WebSocket data feeds (app/services/live_data_service.py). It arrives anyway as a
+# uvicorn[standard] extra, but a feed transport that DEPENDS on it must say so:
+# an extra is the server's business and could be dropped without anyone noticing
+# the operator's ws:// sender had stopped working.
+websockets>=14,<18
+
+# ── geo (§9.14 "Pinned (geo) — FOR THE BACKEND IMAGE ONLY") ────────────────
+# Optional on the dev box (system GDAL 3.8.4 substitutes via gis/rasterio_shim.py);
+# NOTHING substitutes for them inside the image. Without these, local_orthophoto is
+# dead, GeoTIFF uploads are rejected, and total_ce90_m is uncomputable — silently.
+# The GDAL *bindings* are NOT pip-installable from a plain wheel: the Dockerfile
+# installs libgdal-dev and then `pip install GDAL==$(gdal-config --version)`.
+pyproj==3.7.0
+rasterio==1.4.3
+
+# ── export writers (gis/exports) ───────────────────────────────────────────
+# gis declares these as hard deps (gis/pyproject.toml) but rides the desktop
+# as SOURCE with only THIS file installed into the runtime — without them the
+# DXF / GeoPackage / Shapefile / PDF exports grey out in the packaged app.
+# Pure wheels on linux + win64, py3.12.
+ezdxf==1.4.2
+reportlab==4.2.5
+shapely==2.0.6
+geopandas==1.0.1
+
+# ── OPTIONAL: live object detection (app/vendor/object_geolocator) ────────────
+#   Not installed by default: torch is ~1 GB and most installs never detect. The
+#   feature reports itself unavailable (with these exact lines) until they exist.
+#   CPU-only:
+#     pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+#   NVIDIA GPU: install torch matching your CUDA instead.
+#   Then, WITHOUT its deps (it would pull opencv-python over our contrib-headless install):
+#     pip install --no-deps ultralytics
+#     pip install pyyaml tqdm psutil nvidia-ml-py requests matplotlib pandas
+#   Weights: copy yolo26s.pt into LE_DETECTION_MODEL_DIR (default ./data/models).
+#   Weights are NEVER downloaded at runtime — this product works offline.

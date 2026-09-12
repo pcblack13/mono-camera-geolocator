@@ -1,0 +1,26 @@
+# LandExplorer — backend development dependencies (CONTRACT.md §2.4).
+#
+# The test *runner* is not a runtime dep (§0.1). None of this is installed on the
+# dev box today; installing it is one command away and is a prerequisite for
+# `cd backend && pytest`.
+
+-r requirements.txt
+
+pytest==8.3.4
+pytest-asyncio==0.25.2
+pytest-cov==6.0.0
+
+# httpx is already a runtime pin (ASGI transport for the api/ suite — no live server).
+# testcontainers backs the @pytest.mark.db suite (Postgres + PostGIS).
+testcontainers[postgres]==4.9.0
+
+mypy==1.14.1
+ruff==0.8.6
+black==24.10.0
+
+# Property-based tests (§13.2). Shared with ai_engine[dev] / gis[dev].
+hypothesis==6.123.2
+
+# Typing stubs for the third-party surfaces app.* actually annotates against.
+types-redis==4.6.0.20241004
+boto3-stubs[s3]==1.35.99

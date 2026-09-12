@@ -1,0 +1,105 @@
+LandExplorer — Proprietary Software Licence
+Copyright (c) 2026 <COPYRIGHT HOLDER>. All rights reserved.
+
+═══════════════════════════════════════════════════════════════════════════════
+ ★ ACTION REQUIRED BEFORE DISTRIBUTION
+   Replace <COPYRIGHT HOLDER> above with the owning entity.
+
+   This file deliberately defaults to ALL RIGHTS RESERVED because the project
+   brief does not state a licence, and that choice is REVERSIBLE: rights not
+   granted today can be granted tomorrow. The opposite is not true — publishing
+   under an open licence cannot be undone, because every recipient keeps the
+   rights they were given. When the intended licence is confirmed, replace this
+   file wholesale.
+═══════════════════════════════════════════════════════════════════════════════
+
+1. GRANT
+
+   No licence is granted except by a separate written agreement with the
+   copyright holder. Subject to such an agreement, permission is granted to use,
+   copy, and modify this software for the licensee's internal purposes.
+
+2. RESTRICTIONS
+
+   Without prior written permission you may not: distribute, sublicense, sell,
+   or publish this software or derivative works of it; remove or alter this
+   notice; or use the copyright holder's name or marks to endorse or promote
+   products derived from this software.
+
+3. THIRD-PARTY COMPONENTS
+
+   This software depends on third-party components licensed separately by their
+   respective owners, including but not limited to OpenCV (Apache-2.0), NumPy,
+   SciPy, GDAL (MIT/X), PostgreSQL, PostGIS (GPL-2.0-or-later), FastAPI,
+   SQLAlchemy, Celery, React, and PyTorch. Their licences govern those
+   components and are not superseded by this file.
+
+   ★ POSTGIS IS GPL-2.0-or-later. LandExplorer communicates with PostgreSQL/
+     PostGIS over a network protocol and does not link against, embed, or derive
+     from it, so PostGIS's terms do not extend to this software. Do not change
+     that arrangement without legal review.
+
+4. MODEL WEIGHTS ARE NOT COVERED BY THIS LICENCE
+
+   ★ THIS SECTION EXISTS BECAUSE IT IS THE MOST LIKELY WAY TO BREACH A LICENCE
+     WITH THIS SOFTWARE.
+
+   No model weight files are distributed with this software. Weights fetched via
+   `scripts/download_models.py` are licensed by their respective publishers, and
+   those licences are frequently NOT open-source licences and NOT compatible
+   with commercial use.
+
+   Specifically, and non-exhaustively:
+
+     · SuperPoint (Magic Leap)  — RESEARCH / NON-COMMERCIAL ONLY
+     · SuperGlue  (Magic Leap)  — RESEARCH / NON-COMMERCIAL ONLY
+     · LightGlue  (ETH Zurich)  — Apache-2.0
+     · DINOv2     (Meta)        — Apache-2.0
+     · SAM        (Meta)        — Apache-2.0
+
+   A ground control point is a survey coordinate that a client may build on,
+   file against, or litigate over. Producing one commercially with a
+   non-commercial weight file is a licence violation by the operator. The
+   downloader prints each licence and refuses to fetch without an explicit
+   acknowledgement.
+
+   (In the current build the deep model backends are DEFERRED and no code path
+   loads a weight file at all — see docs/architecture/SCOPE.md. This clause
+   governs the moment that changes.)
+
+5. IMAGERY IS NOT COVERED BY THIS LICENCE
+
+   Satellite and aerial imagery retrieved through this software is licensed by
+   its provider, not by the copyright holder. Attribution obligations, caching
+   limits, and restrictions on derived products are the OPERATOR'S
+   responsibility. See docs/legal/imagery-terms.md and README.md.
+
+   Google Earth imagery is not accessible through this software and must not be
+   made so.
+
+6. NO WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+   OR OTHER DEALINGS IN THE SOFTWARE.
+
+8. NOT A SURVEY OF RECORD
+
+   ★ THIS SOFTWARE IS A SURVEYING AID, NOT A LICENSED SURVEY.
+
+   Coordinates it produces are as accurate as the operator's identification of a
+   landmark and the resolution of the underlying imagery. Reported accuracy
+   figures (CE90) describe imagery resolution and click precision — they are not
+   a guarantee of positional truth and do not account for operator
+   misidentification.
+
+   Output must not be relied upon as a survey of record, a cadastral boundary
+   determination, or engineering control without independent verification by a
+   qualified surveyor.

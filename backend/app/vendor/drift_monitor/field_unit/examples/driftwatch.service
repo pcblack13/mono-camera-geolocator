@@ -1,0 +1,46 @@
+# GEO-DRIFT-UPDATE B1 — systemd unit for the drift watch field unit.
+#
+# Install:
+#   sudo cp driftwatch.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now driftwatch
+#   journalctl -u driftwatch -f
+#
+# Edit the paths and the --source before enabling.
+
+[Unit]
+Description=Camera drift watch (Mono Camera Geolocator field unit)
+Documentation=file:/opt/driftwatch/GUIDE.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=driftwatch
+# ★ NOT OPTIONAL for a /dev/video* source: without the video group the daemon
+#   cannot open the camera and every look becomes a "no_frame" line.
+SupplementaryGroups=video
+WorkingDirectory=/opt/driftwatch
+ExecStart=/opt/driftwatch/venv/bin/python /opt/driftwatch/drift_daemon.py \
+    --landmarks /opt/driftwatch/landmarks.npz \
+    --source /dev/video0 \
+    --interval 30
+
+# ★ The verdict stream is the product — keep it as a file, not only in the
+#   journal, so the soak report has something to read months later.
+StandardOutput=append:/var/log/driftwatch/verdicts.jsonl
+StandardError=journal
+
+# ★ A watch that has died is indistinguishable from a camera that has not
+#   moved. Always restart.
+Restart=always
+RestartSec=10
+
+# Modest hardening — the daemon needs the camera, its own folder, and the log.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/log/driftwatch
+
+[Install]
+WantedBy=multi-user.target

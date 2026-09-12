@@ -1,0 +1,161 @@
+{
+  "_comment": "Golden slippy values for \u00a713.3, computed from the published OSM reference formula, NOT from gis.tiles. See _generate.py for the London x=2046 ruling (CONTRACT.md \u00a713.3 misprints it as 2047).",
+  "constants": {
+    "EARTH_CIRCUMFERENCE_M": 40075016.68557849,
+    "ORIGIN_SHIFT_M": 20037508.342789244,
+    "MAX_LATITUDE": 85.0511287798066,
+    "RESOLUTION_Z0_256": 156543.03392804097
+  },
+  "tiles": [
+    {
+      "name": "London",
+      "lon": -0.1278,
+      "lat": 51.5074,
+      "z": 12,
+      "x": 2046,
+      "y": 1362
+    },
+    {
+      "name": "London z0",
+      "lon": -0.1278,
+      "lat": 51.5074,
+      "z": 0,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "name": "Greenwich prime meridian, east side",
+      "lon": 0.0001,
+      "lat": 51.4779,
+      "z": 12,
+      "x": 2048,
+      "y": 1362
+    },
+    {
+      "name": "Greenwich prime meridian, west side",
+      "lon": -0.0001,
+      "lat": 51.4779,
+      "z": 12,
+      "x": 2047,
+      "y": 1362
+    },
+    {
+      "name": "New York",
+      "lon": -74.006,
+      "lat": 40.7128,
+      "z": 12,
+      "x": 1205,
+      "y": 1540
+    },
+    {
+      "name": "Sydney",
+      "lon": 151.2093,
+      "lat": -33.8688,
+      "z": 12,
+      "x": 3768,
+      "y": 2457
+    },
+    {
+      "name": "Rio de Janeiro",
+      "lon": -43.1729,
+      "lat": -22.9068,
+      "z": 12,
+      "x": 1556,
+      "y": 2315
+    },
+    {
+      "name": "Nairobi",
+      "lon": 36.8219,
+      "lat": -1.2921,
+      "z": 12,
+      "x": 2466,
+      "y": 2062
+    },
+    {
+      "name": "Tokyo",
+      "lon": 139.6917,
+      "lat": 35.6895,
+      "z": 12,
+      "x": 3637,
+      "y": 1612
+    },
+    {
+      "name": "Cape Town",
+      "lon": 18.4241,
+      "lat": -33.9249,
+      "z": 12,
+      "x": 2257,
+      "y": 2458
+    },
+    {
+      "name": "Reykjavik",
+      "lon": -21.8277,
+      "lat": 64.1265,
+      "z": 12,
+      "x": 1799,
+      "y": 1089
+    },
+    {
+      "name": "Null Island",
+      "lon": 0.0,
+      "lat": 0.0,
+      "z": 1,
+      "x": 1,
+      "y": 1
+    },
+    {
+      "name": "Origin corner",
+      "lon": -180.0,
+      "lat": 85.0511287798066,
+      "z": 1,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "name": "Fixture ortho",
+      "lon": 15.0,
+      "lat": 45.1534772,
+      "z": 16,
+      "x": 35498,
+      "y": 23535
+    }
+  ],
+  "quadkeys": [
+    {
+      "z": 1,
+      "x": 0,
+      "y": 0,
+      "quadkey": "0"
+    },
+    {
+      "z": 1,
+      "x": 1,
+      "y": 0,
+      "quadkey": "1"
+    },
+    {
+      "z": 1,
+      "x": 0,
+      "y": 1,
+      "quadkey": "2"
+    },
+    {
+      "z": 1,
+      "x": 1,
+      "y": 1,
+      "quadkey": "3"
+    },
+    {
+      "z": 3,
+      "x": 3,
+      "y": 5,
+      "quadkey": "213"
+    },
+    {
+      "z": 2,
+      "x": 0,
+      "y": 0,
+      "quadkey": "00"
+    }
+  ]
+}

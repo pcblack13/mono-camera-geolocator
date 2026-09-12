@@ -1,0 +1,117 @@
+{
+  "name": "mono-camera-geolocator",
+  "version": "1.3.0",
+  "description": "LandExplorer as a desktop app \u2014 Electron shell over the local API",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "smoke": "node smoke.js",
+    "smoke:managed": "node smoke-managed.js",
+    "dist": "electron-builder --linux",
+    "dist:win": "electron-builder --win",
+    "test": "node --test zoom.test.js"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^3.0.2"
+  },
+  "build": {
+    "appId": "net.smartech.landexplorer",
+    "productName": "MonoCameraGeolocator",
+    "files": [
+      "main.js",
+      "boot.js",
+      "runtime.js",
+      "zoom.js",
+      "preload.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "runtime-build/runtime.tar.gz",
+        "to": "runtime.tar.gz"
+      },
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "app/**/*",
+          "alembic/**/*",
+          "alembic.ini",
+          "!**/__pycache__/**"
+        ]
+      },
+      {
+        "from": "../frontend/dist",
+        "to": "frontend-dist"
+      },
+      {
+        "from": "../gis/src",
+        "to": "gis-src",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**"
+        ]
+      },
+      {
+        "from": "../ai_engine/src",
+        "to": "ai_engine-src",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**"
+        ]
+      },
+      {
+        "from": "installation.md",
+        "to": "installation.md"
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Science",
+      "maintainer": "smartech-lb.net",
+      "executableName": "mono-camera-geolocator",
+      "desktop": {
+        "Name": "Mono Camera Geolocator"
+      }
+    },
+    "directories": {
+      "output": "dist-installers"
+    },
+    "deb": {
+      "afterInstall": "build/deb-postinst.sh",
+      "artifactName": "mono-camera-geolocator_${version}_${arch}.${ext}"
+    },
+    "appImage": {
+      "artifactName": "MonoCameraGeolocator-${version}.${ext}"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "MonoCameraGeolocator-Setup-${version}.${ext}",
+      "extraResources": [
+        {
+          "from": "runtime-build/redis-win",
+          "to": "redis-win"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": "always",
+      "shortcutName": "Mono Camera Geolocator",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
+    }
+  },
+  "homepage": "https://smartech-lb.net",
+  "productName": "MonoCameraGeolocator"
+}

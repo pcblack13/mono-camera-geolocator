@@ -1,0 +1,133 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#  LandExplorer — EVERY Python library the full product needs, in one file.
+#
+#      python3 -m venv --system-site-packages .venv
+#      . .venv/bin/activate
+#      pip install -U pip
+#      pip install -e ./ai_engine --no-deps     # ★ see §1 — must come FIRST
+#      pip install -e ./gis --no-deps           # ★ and must use --no-deps
+#      pip install -r requirements.txt
+#
+#  ★ THIS FILE IS A CONVENIENCE AGGREGATE, NOT A SECOND SOURCE OF TRUTH.
+#    `backend/requirements.txt` remains the authoritative pin set for the container
+#    image (CONTRACT.md §9.14, §13.4 rule 7). This file INCLUDES it rather than
+#    restating it, so the two can never drift into disagreeing about a version.
+#    Everything added below is what a full local install needs and that file
+#    deliberately does not carry: the optional export writers and the opt-in extras.
+#
+#  ★ THIS IS THE PYTHON HALF ONLY. The frontend is npm:
+#        cd frontend && npm install        # Node 18+
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ── §0. NOT PIP-INSTALLABLE — install these first, outside Python ──────────────
+#
+#   PostgreSQL 16 + PostGIS 3   the database. `geography(Point,4326)` + GIST indexes.
+#   Redis 7                     Celery broker/result backend, progress, locks, rate limit.
+#   Node 18+                    the frontend build.
+#
+#       sudo apt install -y postgresql-16-postgis-3 redis-server
+#
+#   GDAL python bindings (`osgeo`) — CANNOT be pip-installed from a plain wheel. They
+#   need libgdal-dev plus a version-matched build:
+#
+#       sudo apt install -y libgdal-dev
+#       pip install GDAL==$(gdal-config --version)
+#
+#   On the verified dev box GDAL 3.8.4 is ALREADY a system package, which is why the
+#   venv must be created with --system-site-packages. A plain `python -m venv` hides
+#   cv2 / numpy / scipy / torch / osgeo, and osgeo cannot be pip-installed back.
+#   See scripts/bootstrap_dev.sh — it prints the capability table before it touches
+#   anything, and refuses to proceed on a venv that hid the system stack.
+
+
+# ── §1. THE TWO LOCAL PATH PACKAGES — install BEFORE this file, with --no-deps ─
+#
+#   landexplorer-ai-engine  ->  ./ai_engine    (pixels in, pixels out; no CRS, no DB)
+#   landexplorer-gis        ->  ./gis          (the only place a coordinate is born)
+#
+#       pip install -e ./ai_engine --no-deps
+#       pip install -e ./gis --no-deps
+#
+#   ★ They are NOT listed as `-e` lines in this file, and that is deliberate — not an
+#     omission. Without `--no-deps` pip resolves numpy / opencv-python / scipy from
+#     PyPI and installs a SECOND copy that shadows the system builds, which is how a
+#     NumPy-2 ABI break reaches you on a machine that was working. `--no-deps` is not
+#     expressible per-requirement inside a requirements file, so these stay out of it.
+#     (Same reasoning as scripts/bootstrap_dev.sh and infra/docker/backend.Dockerfile.)
+
+
+# ── §2. CORE RUNTIME — web, db, queue, CV, geo (exact pins) ────────────────────
+#
+#   fastapi · uvicorn · pydantic(-settings) · sqlalchemy · alembic · psycopg ·
+#   geoalchemy2 · celery · redis · python-multipart · pillow · httpx · orjson ·
+#   structlog · prometheus-client · numpy · opencv-python-headless · scipy ·
+#   pyproj · rasterio
+#
+#   Nested `-r` paths resolve relative to THIS file, so running
+#   `pip install -r requirements.txt` from the repo root is correct.
+-r backend/requirements.txt
+
+#   ★ Note on the two geo pins inherited above. `pyproj` and `rasterio` are marked
+#     "for the backend image only" there because on the dev box system GDAL 3.8.4
+#     substitutes for both via gis/rasterio_shim.py and the gis.crs osr fallback.
+#     Installing them locally anyway is the better default: gis.crs then binds pyproj
+#     (its first-choice backend) instead of osr, and `gis.crs.probe()` will say so.
+#     Inside a container NOTHING substitutes — without them local_orthophoto is dead,
+#     GeoTIFF uploads are rejected, and total_ce90_m is silently uncomputable.
+#     If a local rasterio wheel ever fights the system GDAL, drop these two and the
+#     osr path takes over; nothing else changes.
+
+
+# ── §3. EXPORT WRITERS — needed for the full export set ────────────────────────
+#
+#   CSV · GeoJSON · KML · KMZ are stdlib-only and can NEVER degrade — the surveyor can
+#   always get coordinates out of a machine with no geo stack at all. The four formats
+#   below are the ones that need a library, and without it the export degrades with an
+#   honest reason rather than failing:
+#
+#       Shapefile (.zip)  ->  geopandas + fiona + shapely
+#       GeoPackage        ->  geopandas + fiona
+#       DXF (CAD)         ->  ezdxf
+#       PDF report        ->  reportlab
+#
+#   Ranges, not exact pins, and matched to backend/pyproject.toml's [exports] extra —
+#   these resolve against whatever GDAL/GEOS the platform already has, so pinning them
+#   here would break more installs than it fixes.
+geopandas>=1.0
+fiona>=1.10
+shapely>=2.0
+ezdxf>=1.3
+reportlab>=4.2
+
+
+# ── §4. OPT-IN — uncomment only if you turn the feature on ────────────────────
+
+#   S3 / MinIO object storage. ★ The ONE extra that does not degrade gracefully:
+#   it is reachable only via LE_STORAGE_BACKEND=s3, so its absence is a configuration
+#   error, and app.storage raises ConfigurationError at boot rather than silently
+#   writing nowhere. Default storage is local disk and needs nothing.
+# boto3>=1.35,<2
+
+#   OpenTelemetry tracing. No-op when unset.
+# opentelemetry-sdk>=1.29
+# opentelemetry-exporter-otlp>=1.29
+
+#   Deep CV backends (SuperPoint / SuperGlue / LightGlue / LoFTR / DINOv2 / SAM).
+#   ★ NOT NEEDED BY THIS BUILD. The automatic matching engine is DEFERRED
+#   (docs/architecture/SCOPE.md) — every deep path resolves to *deferred*, no weight
+#   file is ever downloaded, and torch is already present system-wide here anyway
+#   (2.11.0+cu130, with torch.cuda.is_available() == False — CPU only).
+# torch>=2.11
+# torchvision>=0.26
+
+
+# ── §5. DEVELOPMENT / TESTS — not runtime ─────────────────────────────────────
+#
+#   pytest · pytest-asyncio · pytest-cov · testcontainers[postgres] · hypothesis ·
+#   mypy · ruff · black · type stubs. Required for `pytest`, `make lint` and
+#   scripts/verify_boundaries.sh; installed by neither the image nor §2.
+#
+#   The ai_engine and gis suites run offline with no network, no GPU, no weights and
+#   no DB — install their [dev] extras with --no-deps for the same reason as §1.
+# -r backend/requirements-dev.txt
